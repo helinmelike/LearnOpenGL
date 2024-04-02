@@ -98,7 +98,7 @@ int main()
 
 	// load entities
 	// -----------
-  Model model = Model(FileSystem::getPath("resources/objects/planet/planet.obj"));
+	Model model = Model(FileSystem::getPath("resources/objects/planet/planet.obj"));
 	Entity ourEntity(model);
 	ourEntity.transform.setLocalPosition({ 10, 0, 0 });
 	const float scale = 0.75;
@@ -109,11 +109,10 @@ int main()
 
 		for (unsigned int i = 0; i < 10; ++i)
 		{
-      Model model = Model(FileSystem::getPath("resources/objects/planet/planet.obj"));
 			lastEntity->addChild(model);
 			lastEntity = lastEntity->children.back().get();
 
-			//Set tranform values
+			//Set transform values
 			lastEntity->transform.setLocalPosition({ 10, 0, 0 });
 			lastEntity->transform.setLocalScale({ scale, scale, scale });
 		}

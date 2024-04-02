@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 cmake_policy(VERSION 3.0)
 
-project (LearnOpenGL)
+project(LearnOpenGL)
 
 set(CMAKE_CXX_STANDARD 17) # this does nothing for MSVC, use target_compile_options below
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -179,15 +179,19 @@ set(GUEST_ARTICLES
 	8.guest/2021/1.scene/1.scene_graph
 	8.guest/2021/1.scene/2.frustum_culling
 	8.guest/2021/2.csm
-	#8.guest/2021/3.tessellation/terrain_gpu_dist
-	#8.guest/2021/3.tessellation/terrain_cpu_src
+	8.guest/2021/3.tessellation/terrain_gpu_dist
+	8.guest/2021/3.tessellation/terrain_cpu_src
 	8.guest/2021/4.dsa
+	8.guest/2022/5.computeshader_helloworld
+	8.guest/2022/6.physically_based_bloom
+	8.guest/2022/7.area_lights/1.area_light
+	8.guest/2022/7.area_lights/2.multiple_area_lights
 )
 
 configure_file(configuration/root_directory.h.in configuration/root_directory.h)
 include_directories(${CMAKE_BINARY_DIR}/configuration)
 
-# first create relevant static libraries requried for other projects
+# first create relevant static libraries required for other projects
 add_library(STB_IMAGE "src/stb_image.cpp")
 set(LIBS ${LIBS} STB_IMAGE)
 
@@ -204,7 +208,10 @@ function(create_project_from_sources chapter demo)
             "src/${chapter}/${demo}/*.cpp"
             "src/${chapter}/${demo}/*.vs"
             "src/${chapter}/${demo}/*.fs"
+            "src/${chapter}/${demo}/*.tcs"
+            "src/${chapter}/${demo}/*.tes"
             "src/${chapter}/${demo}/*.gs"
+            "src/${chapter}/${demo}/*.cs"
     )
 	if (demo STREQUAL "")
 		SET(replaced "")
@@ -234,12 +241,18 @@ function(create_project_from_sources chapter demo)
              "src/${chapter}/${demo}/*.vs"
              # "src/${chapter}/${demo}/*.frag"
              "src/${chapter}/${demo}/*.fs"
+             "src/${chapter}/${demo}/*.tcs"
+             "src/${chapter}/${demo}/*.tes"
              "src/${chapter}/${demo}/*.gs"
+             "src/${chapter}/${demo}/*.cs"
     )
+	# copy dlls
+	file(GLOB DLLS "dlls/*.dll")
     foreach(SHADER ${SHADERS})
         if(WIN32)
             # configure_file(${SHADER} "test")
             add_custom_command(TARGET ${NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SHADER} $<TARGET_FILE_DIR:${NAME}>)
+			add_custom_command(TARGET ${NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${DLLS} $<TARGET_FILE_DIR:${NAME}>)
         elseif(UNIX AND NOT APPLE)
             file(COPY ${SHADER} DESTINATION ${CMAKE_SOURCE_DIR}/bin/${chapter})
         elseif(APPLE)
